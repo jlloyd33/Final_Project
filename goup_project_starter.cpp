@@ -11,37 +11,84 @@
 ** Date: 	
 ** -------------------------------------------------------------------------*/
 
+/**
+ * @file main.cpp
+ * @brief A program that reads words from a file, converts them to uppercase,
+ * and identifies words that contain lowercase characters.
+ */
 #include <iostream>
+#include <fstream> 
+#include <vector> 
 #include <string>
-#include <fstream>
-#include <vector>
+#include <cctype>
+#include <iomanip>
+
 
 using namespace std;
+
+/**
+ * @brief Converts a given string to all uppercase characters.
+ *
+ * This function takes a constant reference to a string, creates a modifiable
+ * copy, and then iterate through each character to convert it to its
+ * uppercase equivalent using the toupper() function.
+ *
+ * @param str The input string to be converted.
+ * @return The new string with all characters converted to uppercase.
+ */
+string touppercase(const string& str)
+{
+    string upperstr = str;
+    for (int i = 0; i < upperstr.length(); i++)
+    {
+        upperstr[i] = toupper(upperstr[i]);
+    }
+    return upperstr;
+}
+
+/**
+ * @brief Main function of the program.
+ *
+ * The main function reads words from a file named "words.txt" and stores them
+ * in two vectors: one for the original words and one for their uppercase
+ * versions. It then compares the words in both vectors and prints any word
+ * that contains lowercase characters, labeling it as "Misspelled".
+ *
+ * @return 0 on successful execution.
+ */
+
 int main()
 {
-    
-	ifstream infile; //initialize the file
-	infile.open("words.txt"); // have to include the filepath to the file in the parentheses.
+    ifstream infile;
+    infile.open("words.txt");
 
-	vector<string> library;
-	string words;
+    vector<string> library;
+    vector<string> upperwords;
+    string words;
 
-	//Verify that the file actually opened.
-    //If the file opens correctly, the while loop populates the "library vector.
-    //If it was unsuccessful, the else statement will output an error message
-	if (infile.is_open())
-	{
-		while (infile >> words) // This loop populates the library vector.
-		{
-			library.push_back(words);
-		}
-		infile.close();
-	}
-	else
-	{
-		cout << "Error: words.txt could not be opened." << endl;
-	}
-	cout << "Number of words read: " << library.size() << endl; // This tells you the size of the library vector.
+  
+    if (infile.is_open())
+    {
+        while (infile >> words)
+        {
+            library.push_back(words);
+            upperwords.push_back(touppercase(words));
+        }
+        infile.close();
+    }
+    else
+    {
+        cout << "Error: words.txt could not be opened." << endl;
+    }
 
+    // The program assumes words with lowercase letters are "misspelled."
+    for (int i = 0; i < library.size(); i++)
+    {
+        if (library[i] != upperwords[i])
+        {
+            cout << "Misspelled words" << " " << library[i] << endl;
+        }
+    }
+   
     return 0;
 }
