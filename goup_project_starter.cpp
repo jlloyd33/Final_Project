@@ -14,14 +14,14 @@
 /**
  * @file main.cpp
  * @brief A program that reads words from a file, converts them to uppercase,
- * and identifies words that contain lowercase characters.
+ * and identifies words that contain lowercase characters as misspelled.
  */
+
 #include <iostream>
-#include <fstream> 
-#include <vector> 
+#include <fstream>
+#include <vector>
 #include <string>
 #include <cctype>
-#include <iomanip>
 
 
 using namespace std;
@@ -30,7 +30,7 @@ using namespace std;
  * @brief Converts a given string to all uppercase characters.
  *
  * This function takes a constant reference to a string, creates a modifiable
- * copy, and then iterate through each character to convert it to its
+ * copy, and then iterates through each character to convert it to its
  * uppercase equivalent using the toupper() function.
  *
  * @param str The input string to be converted.
@@ -41,7 +41,7 @@ string touppercase(const string& str)
     string upperstr = str;
     for (int i = 0; i < upperstr.length(); i++)
     {
-        upperstr[i] = toupper(upperstr[i]);
+        upperstr[i] = toupper(static_cast<unsigned char>(upperstr[i]));
     }
     return upperstr;
 }
@@ -56,7 +56,6 @@ string touppercase(const string& str)
  *
  * @return 0 on successful execution.
  */
-
 int main()
 {
     ifstream infile;
@@ -66,7 +65,7 @@ int main()
     vector<string> upperwords;
     string words;
 
-  
+
     if (infile.is_open())
     {
         while (infile >> words)
@@ -82,13 +81,13 @@ int main()
     }
 
     // The program assumes words with lowercase letters are "misspelled."
-    for (int i = 0; i < library.size(); i++)
+    for (size_t i = 0; i < library.size(); i++)
     {
         if (library[i] != upperwords[i])
         {
-            cout << "Misspelled words" << " " << library[i] << endl;
+            cout << "Misspelled words" << " " << upperwords[i] << endl;
         }
     }
-   
+    
     return 0;
 }
