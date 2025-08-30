@@ -4,8 +4,9 @@
 **
 ** Class: 	CSC 242
 ** Assignment: 	Lesson #5
-** File: 	source.cpp
-** Description:
+** File: 	group_project.cpp
+** Description: Looking over a text document wordlist.txt and checking misspelled words and displacing which words are misspelled. 
+**  Also cyphering and decyphering words that a use is prompted to put in
 **
 ** Author: Jared Lloyd, Joshua Najera, and Lorenzo Robles
 ** Date:8/30/2025
