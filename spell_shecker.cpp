@@ -5,33 +5,22 @@
 #include <unordered_set>
 #include <algorithm>
 #include <cctype>
-
+#include <set>
 
 using namespace std;
 
-// Function to convert a string to lowercase
-string toLower(const string & s) 
-{
-    string lower_s = s;
-    transform(lower_s.begin(), lower_s.end(), lower_s.begin(),
-        [](unsigned char c) { return tolower(c); });
-    return lower_s;
-}
+// A constant for the default dictionary filename.
+const string DEFAULT_DICTIONARY_PATH = "word_list.txt";
 
-// Convert a string to uppercase
-string toUpper(const string& s) 
-{
-    string upper_s = s;
-    transform(upper_s.begin(), upper_s.end(), upper_s.begin(),
-        [](unsigned char c) { return toupper(c); });
-    return upper_s;
-}
+// A constant for the default input filename.
+const string DEFAULT_INPUT_PATH = "test_document.txt";
 
-// Clean a word (remove punctuation and convert to lowercase)
-string clean_word(const string& s) 
+// Helper function to remove punctuation and convert a string to lowercase.
+string clean_word(const string& s)
 {
     string cleaned_s;
     for (char c : s) {
+        // Only include alphabetic characters.
         if (isalpha(c)) {
             cleaned_s += tolower(c);
         }
@@ -39,77 +28,78 @@ string clean_word(const string& s)
     return cleaned_s;
 }
 
-int main() 
+int main(int argc, char* argv[])
 {
-   
-    // Open the dictionary file and build the word list
-    const char* dictionary_path = "\\Users\\jared\\OneDrive\\Documents\\National college\\Word_list.docx";
-    cout << "Loading from the provided file: " << dictionary_path << "..." << endl;
+    // Define the file paths for the dictionary and the document to check.
+    // Use command-line arguments if provided, otherwise use default values.
+    string dictionary_path = DEFAULT_DICTIONARY_PATH;
+    string input_path = DEFAULT_INPUT_PATH;
 
-    // Using unordered_set for efficient lookups.
+    if (argc > 1) {
+        dictionary_path = argv[1];
+    }
+    if (argc > 2) {
+        input_path = argv[2];
+    }
+
+    // Load the dictionary into a hash set for fast lookups.
     unordered_set<string> dictionary_words;
     ifstream dict_file(dictionary_path);
 
-    if (!dict_file.is_open()) 
+    if (!dict_file.is_open())
     {
-        cout << "Error: Dictionary file not found at '" << dictionary_path << "'. Please check the path." << endl;
+        cout << "Error: Could not open dictionary file at '" << dictionary_path << "'." << endl;
+        cout << "Make sure the file exists and is a plain text file." << endl;
         return 1;
     }
 
     string word;
-    while (getline(dict_file, word))
+    while (dict_file >> word)
     {
-        dictionary_words.insert(toLower(word));
+        dictionary_words.insert(clean_word(word));
     }
     dict_file.close();
     cout << "Dictionary loaded with " << dictionary_words.size() << " words." << endl;
 
-    // Open the file to be checked and create a dummy file if it doesn't exist 
-    const char* input = "test_document.txt";
-    cout << "\nChecking spelling in file: " << input << "..." << endl;
-
-    // Check if the input file exists, and create a dummy one if not
-    ifstream input_check(input);
-    if (!input_check.is_open()) 
-    {
-        ofstream test_file(input);
-        test_file << "This is a test document with some speling errors.\n";
-        test_file << "The goal is to find the misspelled words, like \"speling\" and \"docment\".\n";
-        test_file << "Let's see if the program can catch them.\n";
-        test_file << "Anothe word to test is \"Anothe\".\n";
-        test_file << "The last words will be \"program\", \"programing\" and \"Python\".\n";
-        test_file.close();
-        cout << "Created a dummy test file '" << input << "'." << endl;
-    }
-    input_check.close();
-
-    ifstream input_file(input);
+    // Open the document to check.
+    ifstream input_file(input_path);
     if (!input_file.is_open())
     {
-        cout << "Error: Input file not found at '" << input << "'. Please check the path." << endl;
+        cout << "Error: Could not open input file at '" << input_path << "'." << endl;
         return 1;
     }
 
-    unordered_set<string> misspelled_words;
+    // A set to store unique misspelled words. A set keeps the words sorted and unique.
+    set<string> misspelled_words;
+    int words_checked = 0;
 
-    // Read the input file word by word
-    while (input_file >> word) 
+    // Read the input file word by word.
+    while (input_file >> word)
     {
-        string cleaned_word = clean_word(word);
+        words_checked++;
+        string cleaned = clean_word(word);
 
-        // If the cleaned word is not in the dictionary
-        if (!cleaned_word.empty() && dictionary_words.find(cleaned_word) == dictionary_words.end()) {
-            // Check if we've already printed this word to avoid duplicates.
-            if (misspelled_words.find(cleaned_word) == misspelled_words.end()) {
-                // Convert to uppercase before printing
-                cout << "Misspelled: " << toUpper(cleaned_word) << endl;
-                misspelled_words.insert(cleaned_word);
-            }
+        // Check if the cleaned word is in the dictionary.
+        if (!cleaned.empty() && dictionary_words.find(cleaned) == dictionary_words.end()) {
+            misspelled_words.insert(cleaned);
         }
     }
 
     input_file.close();
-    cout << "\nDocument has been checked for spelling errors." << endl;
+
+    cout << "\nChecked " << words_checked << " words from '" << input_path << "'." << endl;
+
+    // Print the results.
+    if (misspelled_words.empty()) {
+        cout << "No spelling errors found." << endl;
+    }
+    else {
+        cout << "\nFound " << misspelled_words.size() << " unique misspelled words:" << endl;
+        for (const auto& w : misspelled_words) {
+            cout << " - " << w << endl;
+        }
+    }
 
     return 0;
 }
+
